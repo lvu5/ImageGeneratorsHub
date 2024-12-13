@@ -1,6 +1,20 @@
- fastapi
- uvicorn
- torch
- transformers
- diffusers
- accelerate
+fastapi
+uvicorn
+
+torch==2.5.1
+transformers
+diffusers
+accelerate
+sentencepiece
+protobuf
+
+python-dotenv
+
+safetensors
+huggingface_hub
+Pillow
+requests
+openai
+replicate
+httpx
+pydantic
