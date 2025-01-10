@@ -6,3 +6,4 @@ openai
 replicate
 python-dotenv
 aiohttp
+requests

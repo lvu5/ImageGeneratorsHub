@@ -4,7 +4,8 @@ import replicate
 from fastapi import HTTPException
 
 from core.image_generator import ImageGenerator
-from models.schemas import  EngineRequirement
+from models.schemas import EngineRequirement
+from utils import url_to_base64
 
 
 class ReplicateGenerator(ImageGenerator):
@@ -27,15 +28,16 @@ class ReplicateGenerator(ImageGenerator):
                 "prompt": prompt,
                 "width": size,
                 "height": size,
-                "num_outputs": num_images
+                "num_outputs": num_images,
+                "output_format": "png"
             }
 
             response = await client.async_run(
                 model,
                 input=input_params
             )
-            # In real implementation, convert URLs to base64
-            return ["base64_encoded_image_data"] * num_images
+            return [url_to_base64(url) for url in response]
+
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Replicate generation failed: {str(e)}")
 
