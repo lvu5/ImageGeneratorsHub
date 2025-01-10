@@ -1,24 +1,40 @@
-from typing import List
+from typing import List, Dict, Any
 
+from fastapi import HTTPException
 from openai import AsyncOpenAI
-from config import OPENAI_API_KEY
-from utils import url_to_base64
 
-# Only instantiate client if OPENAI_API_KEY is set
-aclient = AsyncOpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+from core.image_generator import ImageGenerator
+from models.schemas import EngineRequirement
 
 
-async def generate_dalle_images(prompt: str, k: int, width: int, height: int) -> List[str]:
-    if aclient is None:
-        raise ValueError("OpenAI API Key not provided, DALL·E engine not available.")
+class DallEGenerator(ImageGenerator):
+    def __init__(self):
+        super().__init__(
+            name="DALL-E",
+            description="OpenAI's DALL-E image generation model"
+        )
 
-    size_str = f"{width}x{height}"
-    response = await aclient.images.generate(prompt=prompt, n=k, size=size_str)
-    urls = [item["url"] for item in response["data"]]
+    async def generate(self, params: Dict[str, Any], prompt: str, size: int, num_images: int) -> List[str]:
+        if "api_key" not in params:
+            raise HTTPException(status_code=400, detail="OpenAI API key is required")
 
-    encoded_images = []
-    for url in urls:
-        encoded = await url_to_base64(url)
-        encoded_images.append(encoded)
+        try:
+            client = AsyncOpenAI(api_key=params["api_key"])
+            response = await client.images.generate(
+                prompt=prompt,
+                size=f"{size}x{size}",
+                n=num_images,
+                response_format="b64_json"
+            )
+            return [img.b64_json for img in response.data]
 
-    return encoded_images
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"DALL-E generation failed: {str(e)}")
+
+    def get_required_params(self) -> List[EngineRequirement]:
+        return [
+            EngineRequirement(
+                name="api_key",
+                description="OpenAI API key"
+            )
+        ]
