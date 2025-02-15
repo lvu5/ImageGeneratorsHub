@@ -6,6 +6,11 @@ from typing import List
 from pydantic import BaseModel, Field
 
 
+class ImageSize(str, Enum):
+    SMALL = "SMALL"
+    MEDIUM = "MEDIUM"
+    LARGE = "LARGE"
+
 
 class EngineRequirement(BaseModel):
     name: str
@@ -28,7 +33,9 @@ class GenerationRequest(BaseModel):
     engines: List[EngineConfig]
     num_engines_to_use: int = Field(..., description="Number of engines to use")
     num_images: int = Field(1, description="Number of images to generate per engine")
-    image_size: int = Field(512, description="Image size in pixels")
+    image_size: ImageSize = Field(
+        ImageSize.MEDIUM, description="Image size. Acceptable values: SMALL, MEDIUM, LARGE"
+    )
     use_fallback: bool = Field(False, description="Whether to use fallback engines on failure")
 
 

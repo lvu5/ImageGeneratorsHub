@@ -3,7 +3,7 @@ from typing import List
 
 from engines.dalle import DallEGenerator
 from engines.local import LocalGenerator
-from engines.replicate import ReplicateGenerator
+from engines.replicate import ReplicateGenerator, RealVisXL
 from models.schemas import GenerationRequest, GenerationResponse, EngineInfo
 from services.hub import ImageGeneratorHub
 
@@ -15,6 +15,7 @@ hub = ImageGeneratorHub()
 async def startup_event():
     hub.register_engine(DallEGenerator())
     hub.register_engine(ReplicateGenerator())
+    hub.register_engine(RealVisXL())
     hub.register_engine(LocalGenerator())
 
 

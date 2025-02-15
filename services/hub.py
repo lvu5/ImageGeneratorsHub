@@ -32,7 +32,7 @@ class ImageGeneratorHub:
             self,
             engine: ImageGenerator,
             config: dict,
-            size: int,
+            size: str,
             num_images: int
     ) -> Tuple[bool, List[GeneratedImage]]:
         """
@@ -43,7 +43,7 @@ class ImageGeneratorHub:
             base64_images = await engine.generate(
                 params=config["params"],
                 prompt=config["prompt"],
-                size=size,
+                size=engine.convert_size(size),
                 num_images=num_images
             )
 
@@ -60,7 +60,7 @@ class ImageGeneratorHub:
     async def _generate_with_redistribution(
             self,
             engine_configs: List[dict],
-            size: int,
+            size: str,
             total_images: int,
             images_per_engine: int,
             num_engines_to_use: int,
@@ -150,7 +150,7 @@ class ImageGeneratorHub:
 
         generated_images, failed_engines = await self._generate_with_redistribution(
             engine_configs=[config.model_dump() for config in request.engines],
-            size=request.image_size,
+            size=request.image_size.value,
             total_images=total_images,
             images_per_engine=images_per_engine,
             num_engines_to_use=request.num_engines_to_use,

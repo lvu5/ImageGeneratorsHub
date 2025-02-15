@@ -1,4 +1,5 @@
 # app/engines/local.py
+from enum import Enum
 from typing import List, Dict, Any
 
 import aiohttp
@@ -9,6 +10,11 @@ from models.schemas import EngineRequirement
 
 
 class LocalGenerator(ImageGenerator):
+    class Size(Enum):
+        SMALL = (512, 512)
+        MEDIUM = (768, 768)
+        LARGE = (1024, 1024)
+
     def __init__(self):
         super().__init__(
             name="Local",
@@ -29,12 +35,12 @@ class LocalGenerator(ImageGenerator):
 
         return f"{host}:{port}/{endpoint}"
 
-    async def generate(self, params: Dict[str, Any], prompt: str, size: int, num_images: int) -> List[str]:
+    async def generate(self, params: Dict[str, Any], prompt: str, size: "LocalGenerator.Size", num_images: int) -> List[str]:
         url = self._build_url(params)
 
         request_data = {
             "prompt": prompt,
-            "size": f"{size}x{size}",
+            "size": f"{size.value[0]}x{size.value[1]}",
             "n": num_images
         }
 
