@@ -7,3 +7,8 @@ replicate
 python-dotenv
 aiohttp
 requests
+
+torch
+diffusers
+transformers
+accelerate
