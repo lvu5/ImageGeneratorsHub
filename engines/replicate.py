@@ -6,7 +6,7 @@ from fastapi import HTTPException
 
 from core.image_generator import ImageGenerator
 from models.schemas import EngineRequirement
-from utils import url_to_base64
+from utils import url_to_base64, img_to_base64
 
 
 class ReplicateGenerator(ImageGenerator):
@@ -22,7 +22,7 @@ class ReplicateGenerator(ImageGenerator):
         )
 
     async def generate(self, params: Dict[str, Any], prompt: str, size: "ReplicateGenerator.Size", num_images: int) -> \
-    List[str]:
+            List[str]:
         if "api_token" not in params:
             raise HTTPException(status_code=400, detail="Replicate API token is required")
 
@@ -70,9 +70,8 @@ class RealVisXL(ImageGenerator):
     def __init__(self):
         super().__init__(name="RealVisXL", description="adirik/realvisxl-v3.0-turbo on Replicate.com")
 
-
     async def generate(self, params: Dict[str, Any], prompt: str, size: "RealVisXL.Size", num_images: int) -> \
-    List[str]:
+            List[str]:
         if "api_token" not in params:
             raise HTTPException(status_code=400, detail="Replicate API token is required")
 
@@ -102,6 +101,50 @@ class RealVisXL(ImageGenerator):
             input=input_params
         )
         return [url_to_base64(url) for url in response]
+
+    def get_required_params(self) -> List[EngineRequirement]:
+        return [
+            EngineRequirement(
+                name="api_token",
+                description="Replicate API token"
+            )
+        ]
+
+
+class Imagen3(ImageGenerator):
+    class Size(Enum):
+        SMALL = (512, 512)
+        MEDIUM = (768, 768)
+        LARGE = (1024, 1024)
+
+    def __init__(self):
+        super().__init__(name="Imagen3-fast", description="https://replicate.com/google/imagen-3-fast/api")
+
+    async def generate(self, params: Dict[str, Any], prompt: str, size: "RealVisXL.Size", num_images: int) -> \
+            List[str]:
+        if "api_token" not in params:
+            raise HTTPException(status_code=400, detail="Replicate API token is required")
+
+        # try:
+        client = replicate.Client(api_token=params["api_token"])
+        model = "google/imagen-3-fast"
+
+        # Configure for multiple images
+        input_params = {
+            "prompt": prompt,
+            "aspect_ratio": "1:1",
+            "safety_filter_level": "block_only_high",
+            "output_format": "png",
+        }
+        results = []
+        for i in range(num_images):
+            response = await client.async_run(
+                model,
+                input=input_params
+            )
+            results.append(url_to_base64(response))
+
+        return results
 
 
     def get_required_params(self) -> List[EngineRequirement]:
