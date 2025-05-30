@@ -18,7 +18,7 @@ async def startup_event():
     hub.register_engine(ReplicateGenerator())
     hub.register_engine(RealVisXL())
     hub.register_engine(Imagen3())
-    hub.register_engine(StableDiffusionXLGenerator())
+    # hub.register_engine(StableDiffusionXLGenerator())
     hub.register_engine(LocalGenerator())
 
 
