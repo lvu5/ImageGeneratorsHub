@@ -15,7 +15,9 @@ def get_sd_turbo_model():
 
     pipe = AutoPipelineForText2Image.from_pretrained("stabilityai/sd-turbo", torch_dtype=torch.float16,
                                                      variant="fp16")
-    pipe.to("cuda")
+    # checking if cuda is available before moving to cuda
+    if torch.cuda.is_available():
+        pipe.to("cuda")
     return pipe
 
 
