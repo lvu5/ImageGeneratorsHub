@@ -1,3 +1,4 @@
+from engines.sd_turbo import SDTurboGenerator
 from fastapi import FastAPI
 from typing import List
 
@@ -19,6 +20,7 @@ async def startup_event():
     hub.register_engine(RealVisXL())
     hub.register_engine(Imagen3())
     # hub.register_engine(StableDiffusionXLGenerator())
+    hub.register_engine(SDTurboGenerator())
     hub.register_engine(LocalGenerator())
 
 
